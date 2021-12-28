@@ -34,8 +34,6 @@ public class TbWebAttendanceController {
                 return BaseResult.fail("不能为空");
             }
 
-
-
 //            String userName;
 //            try {
 //                userName = (String) Objects.requireNonNull(TokenUtil.getToken(token)).get("username");
