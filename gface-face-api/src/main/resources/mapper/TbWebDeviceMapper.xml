@@ -1,0 +1,330 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebDeviceDao">
+
+    <select id="selectVisDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBDeviceInfo">
+        SELECT
+        dev_group_vis.g_name AS device_group,
+        dev_device_vis.*,
+        heartbeat_time AS STATUS
+        FROM
+        dev_device_vis
+        LEFT JOIN dev_group_vis ON dev_device_vis.device_group = dev_group_vis.g_id
+        <where>
+            <choose>
+                <when test='status == -1'>
+                    and heartbeat_time = 0
+                </when>
+
+                <when test='status == 1 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time &gt;= #{heartbeatTime}
+                </when>
+
+                <when test='status == 2 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time != 0 and heartbeat_time &lt;= #{heartbeatTime}
+                </when>
+
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and create_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+            <if test='id != null and id != ""'>
+                and id = #{id}
+            </if>
+            <if test='deviceCode != null and deviceCode != ""'>
+                and device_code = #{deviceCode}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='openType != null and openType != 0'>
+                and openType = #{open_type}
+            </if>
+            <if test='location != null and location != ""'>
+                and location like concat('%',#{location},'%')
+            </if>
+            <if test='vendors != null and vendors != ""'>
+                and vendors like concat('%',#{vendors},'%')
+            </if>
+            <if test="deviceGroup != null">
+                and device_group = #{deviceGroup}
+            </if>
+            and dev_device_vis.user_name = #{userName}
+        </where>
+        ORDER BY id ASC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+    <select id="selectVisDeviceInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        dev_device_vis
+        LEFT JOIN dev_group_vis ON dev_device_vis.device_group = dev_group_vis.g_id
+        <where>
+            <choose>
+                <when test='status == -1'>
+                    and heartbeat_time = 0
+                </when>
+
+                <when test='status == 1 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time &gt;= #{heartbeatTime}
+                </when>
+
+                <when test='status == 2 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time != 0 and heartbeat_time &lt;= #{heartbeatTime}
+                </when>
+
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and create_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+            <if test='id != null and id != ""'>
+                and id = #{id}
+            </if>
+            <if test='deviceCode != null and deviceCode != ""'>
+                and device_code = #{deviceCode}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='openType != null and openType != 0'>
+                and openType = #{open_type}
+            </if>
+            <if test='location != null and location != ""'>
+                and location like concat('%',#{location},'%')
+            </if>
+            <if test='vendors != null and vendors != ""'>
+                and vendors like concat('%',#{vendors},'%')
+            </if>
+            <if test="deviceGroup != null">
+                and device_group = #{deviceGroup}
+            </if>
+            and dev_device_vis.user_name = #{userName}
+        </where>
+    </select>
+
+    <select id="selectDoorDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBDeviceInfo">
+        SELECT
+        dev_group.g_name AS device_group,
+        dev_device_door.*,
+        heartbeat_time AS STATUS
+        FROM
+        dev_device_door
+        LEFT JOIN dev_group ON dev_device_door.device_group = dev_group.g_id
+        <where>
+            <choose>
+                <when test='status == -1'>
+                    and heartbeat_time = 0
+                </when>
+
+                <when test='status == 1 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time &gt;= #{heartbeatTime}
+                </when>
+
+                <when test='status == 2 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time != 0 and heartbeat_time &lt;= #{heartbeatTime}
+                </when>
+
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and create_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+            <if test='id != null and id != ""'>
+                and id = #{id}
+            </if>
+            <if test='deviceCode != null and deviceCode != ""'>
+                and device_code = #{deviceCode}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='openType != null and openType != 0'>
+                and openType = #{open_type}
+            </if>
+            <if test='location != null and location != ""'>
+                and location like concat('%',#{location},'%')
+            </if>
+            <if test='vendors != null and vendors != ""'>
+                and vendors like concat('%',#{vendors},'%')
+            </if>
+            <if test="deviceGroup != null">
+                and device_group = #{deviceGroup}
+            </if>
+            and dev_device_door.user_name = #{userName}
+        </where>
+        ORDER BY id ASC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectDoorDeviceInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        dev_device_door
+        LEFT JOIN dev_group ON dev_device_door.device_group = dev_group.g_id
+        <where>
+            <choose>
+                <when test='status == -1'>
+                    and heartbeat_time = 0
+                </when>
+
+                <when test='status == 1 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time &gt;= #{heartbeatTime}
+                </when>
+
+                <when test='status == 2 and heartbeatTime != null and heartbeatTime != 0'>
+                    and heartbeat_time != 0 and heartbeat_time &lt;= #{heartbeatTime}
+                </when>
+
+                <otherwise>
+                </otherwise>
+            </choose>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and create_time BETWEEN #{beginTime} and #{endTime}
+            </if>
+            <if test='id != null and id != ""'>
+                and id = #{id}
+            </if>
+            <if test='deviceCode != null and deviceCode != ""'>
+                and device_code = #{deviceCode}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='openType != null and openType != 0'>
+                and openType = #{open_type}
+            </if>
+            <if test='location != null and location != ""'>
+                and location like concat('%',#{location},'%')
+            </if>
+            <if test='vendors != null and vendors != ""'>
+                and vendors like concat('%',#{vendors},'%')
+            </if>
+            <if test="deviceGroup != null">
+                and device_group = #{deviceGroup}
+            </if>
+            and dev_device_door.user_name = #{userName}
+        </where>
+    </select>
+
+    <update id="updateId">
+        alter table dev_device_door AUTO_INCREMENT=1;
+    </update>
+    <update id="updateVisId">
+        alter table dev_device_vis AUTO_INCREMENT=1;
+    </update>
+    <insert id="insertDoorDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO
+        dev_device_door
+        (device_code, device_name, open_type, location, vendors, create_time, heartbeat_time, user_name, remark, device_group, device_ip)
+        VALUES
+        (#{deviceCode}, #{deviceName}, #{openType}, #{location}, #{vendors}, #{createTime}, 0, #{userName}, #{remark}, #{deviceGroup}, #{deviceIP})
+    </insert>
+    <insert id="insertVisDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO
+        dev_device_vis
+        (device_code, device_name, open_type, location, vendors, create_time, heartbeat_time, user_name, remark, device_group, device_ip)
+        VALUES
+        (#{deviceCode}, #{deviceName}, #{openType}, #{location}, #{vendors}, #{createTime}, 0, #{userName}, #{remark}, #{deviceGroup}, #{deviceIP})
+    </insert>
+    <update id="updateHeartbeatId">
+        alter table dev_heartbeat_status AUTO_INCREMENT=1;
+    </update>
+    <insert id="insertHeartbeatInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO
+        dev_heartbeat_status
+        (device_code)
+        VALUES (#{deviceCode})
+    </insert>
+    <update id="updateDoorDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE dev_device_door
+        <set>
+            <if test="status != null and status != 0">
+                status = #{status},
+            </if>
+            <if test="vendors != null">
+                vendors = #{vendors},
+            </if>
+            <if test="deviceName != null">
+                device_name = #{deviceName},
+            </if>
+            <if test="deviceGroup != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="openType != null">
+                open_type = #{openType},
+            </if>
+            <if test="location != null">
+                location = #{location},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="deviceIP != null">
+                device_ip = #{deviceIP},
+            </if>
+            <if test="heartbeatTime != null and heartbeatTime != 0">
+                heartbeat_time = #{heartbeatTime},
+            </if>
+        </set>
+        WHERE device_code = #{deviceCode}
+        <if test="userName != null">
+            and user_name = #{userName}
+        </if>
+    </update>
+    <update id="updateVisDeviceInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE dev_device_vis
+        <set>
+            <if test="status != null and status != 0">
+                status = #{status},
+            </if>
+            <if test="vendors != null">
+                vendors = #{vendors},
+            </if>
+            <if test="deviceName != null">
+                device_name = #{deviceName},
+            </if>
+            <if test="deviceGroup != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="openType != null">
+                open_type = #{openType},
+            </if>
+            <if test="location != null">
+                location = #{location},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="deviceIP != null">
+                device_ip = #{deviceIP},
+            </if>
+            <if test="heartbeatTime != null and heartbeatTime != 0">
+                heartbeat_time = #{heartbeatTime},
+            </if>
+        </set>
+        WHERE device_code = #{deviceCode}
+        <if test="userName != null">
+            and user_name = #{userName}
+        </if>
+    </update>
+    <delete id="deleteDoorDeviceInfo" parameterType="String">
+        DELETE FROM dev_device_door where device_code = #{deviceCode} and user_name = #{userName};
+    </delete>
+    <delete id="deleteVisDeviceInfo" parameterType="String">
+        DELETE FROM dev_device_vis where device_code = #{deviceCode} and user_name = #{userName};
+    </delete>
+    <delete id="deleteHeartbeatDeviceInfo" parameterType="String">
+        DELETE FROM dev_heartbeat_status where device_code = #{deviceCode};
+    </delete>
+</mapper>

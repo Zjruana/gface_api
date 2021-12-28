@@ -1,0 +1,46 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbDeviceUserDao">
+
+    <select id="selectDoorUpdateUser" resultType="cn.gface.face.api.data.DeviceUserInfo">
+        SELECT
+            per_employee.* ,
+			0 as personType
+        FROM
+            per_employee
+        WHERE
+            device_group = (SELECT device_group from dev_device_door where device_code = #{deviceCode}) and update_time > #{lastUpdateTime}
+        ORDER BY
+            update_time ASC
+        LIMIT 100
+
+    </select>
+    <select id="selectVisUpdateUser" resultType="cn.gface.face.api.data.DeviceUserInfo">
+        SELECT
+            per_visitor.* ,
+			1 as personType
+        FROM
+            per_visitor
+        WHERE
+            device_group = (SELECT device_group from dev_device_vis where device_code = #{deviceCode}) and update_time > #{lastUpdateTime}
+        ORDER BY
+            update_time ASC
+        LIMIT 100
+
+    </select>
+    <select id="selectBlacklistUpdateUser" resultType="cn.gface.face.api.data.DeviceUserInfo">
+        SELECT
+            per_blacklist.* ,
+			2 as personType
+        FROM
+            per_blacklist
+        WHERE
+            device_group = (SELECT device_group from dev_device_door where device_code = #{deviceCode}) and update_time > #{lastUpdateTime}
+        ORDER BY
+            update_time ASC
+        LIMIT 100
+
+    </select>
+
+
+</mapper>

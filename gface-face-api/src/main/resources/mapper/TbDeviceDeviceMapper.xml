@@ -1,0 +1,81 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbDeviceDeviceDao">
+    <select id="selectConfig" resultType="cn.gface.face.api.data.DeviceConfigInfo">
+        select *
+        from dev_config
+        where device_code = #{deviceCode}
+    </select>
+
+    <select id="selectAccessVerificationConfig" resultType="cn.gface.face.api.data.DeviceAccessVerificationConfigInfo">
+        select *
+        from dev_access_verification_config
+        where device_code = #{deviceCode}
+    </select>
+
+    <select id="selectRsaConfig" resultType="cn.gface.face.api.data.DeviceRSAConfigInfo">
+        select *
+        from dev_rsa_config
+        where device_code = #{deviceCode}
+    </select>
+
+    <select id="selectHeartbeat" resultType="cn.gface.face.api.data.DeviceHeartbeatInfo">
+        select *
+        from dev_heartbeat_status
+        where device_code = #{deviceCode}
+    </select>
+
+    <select id="selectDoorDevice" resultType="cn.gface.face.api.data.TBDeviceInfo">
+        select *
+        from dev_device_door
+        where device_code = #{deviceCode}
+    </select>
+
+    <select id="selectVisDevice" resultType="cn.gface.face.api.data.TBDeviceInfo">
+        select *
+        from dev_device_vis
+        where device_code = #{deviceCode}
+    </select>
+
+    <update id="updateHeartbeat" parameterType="cn.gface.face.api.data.DeviceHeartbeatInfo">
+        UPDATE dev_heartbeat_status
+        <set>
+            <if test="apkUrl != null">
+                apk_url = #{apkUrl},
+            </if>
+            <if test="lastUserUpdateTime != null and lastUserUpdateTime != 0">
+                last_user_update_time = #{lastUserUpdateTime},
+            </if>
+            <if test="lastDeviceConfigUpdateTime != null and lastDeviceConfigUpdateTime != 0">
+                last_device_config_update_time = #{lastDeviceConfigUpdateTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        WHERE device_code = #{deviceCode}
+    </update>
+
+    <update id="batchUpdateHeartbeat" parameterType="cn.gface.face.api.data.DeviceHeartbeatInfo">
+        UPDATE dev_heartbeat_status
+        <set>
+            <if test="apkUrl != null">
+                apk_url = #{apkUrl},
+            </if>
+            <if test="lastUserUpdateTime != null and lastUserUpdateTime != 0">
+                last_user_update_time = #{lastUserUpdateTime},
+            </if>
+            <if test="lastDeviceConfigUpdateTime != null and lastDeviceConfigUpdateTime != 0">
+                last_device_config_update_time = #{lastDeviceConfigUpdateTime},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        WHERE device_code in
+        <foreach item="deviceCode" index="index" collection="deviceCodes" open="(" separator="," close=")">
+            #{deviceCode}
+        </foreach>
+    </update>
+
+</mapper>

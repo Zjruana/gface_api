@@ -1,0 +1,56 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebUserDao">
+
+    <select id="selectUserInfo" resultType="TBUserInfo">
+        SELECT
+        *
+        FROM
+        g_user
+        WHERE user_name = #{username} AND password = #{password}
+    </select>
+    <select id="selectUserInfoByUserName" resultType="TBUserInfo">
+        SELECT
+        *
+        FROM
+        g_user
+        WHERE user_name = #{username}
+    </select>
+
+    <!--修改信息-->
+    <update id="updateUserInfo" parameterType="RequestEntity">
+        UPDATE g_user
+        <set>
+            <if test="profile != null">
+                profile = #{profile},
+            </if>
+            <if test="phoneNumber != null">
+                phone_number = #{phoneNumber},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="sex != null and sex != 0">
+                sex = #{sex},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+        WHERE user_name = #{userName}
+    </update>
+
+    <!--修改密码-->
+    <update id="updateUserPassword" parameterType="RequestEntity">
+        UPDATE g_user
+        SET password = #{newPassword}
+        WHERE user_name = #{userName} and password = #{password}
+    </update>
+
+    <!--修改ServerUrl-->
+    <update id="changeServerUrl" parameterType="RequestEntity">
+        UPDATE g_user
+        SET server_url = #{serverUrl}
+        WHERE user_name = #{userName}
+    </update>
+</mapper>

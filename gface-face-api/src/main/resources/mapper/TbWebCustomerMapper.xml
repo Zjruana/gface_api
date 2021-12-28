@@ -1,0 +1,126 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebCustomerDao">
+
+    <!--  查询所有客户信息  -->
+    <select id="selectCustomerInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBUserInfo">
+        SELECT
+        a.*,
+        b.user_name as p_user_name,
+        c.used_count
+        FROM g_user AS a
+        LEFT JOIN g_user AS b ON a.pid = b.id
+        LEFT JOIN (select pid,count(pid) as used_count from g_user GROUP BY pid) c on a.id = c.pid
+        <where>
+            <if test='userName != null and userName != ""'>
+                and a.user_name like concat('%',#{userName},'%')
+            </if>
+            <if test='role != "admin"'>
+                and a.role = #{role} and a.pid = #{id}
+            </if>
+            <if test='role == "admin"'>
+                and a.id != #{id}
+            </if>
+            <if test='pUserName != null and pUserName != ""'>
+                and b.user_name like concat('%',#{pUserName},'%')
+            </if>
+        </where>
+
+        ORDER BY b.user_name , a.create_time ASC
+        <if test='limit != 0'>
+            LIMIT #{page}, #{limit}
+        </if>
+    </select>
+
+    <!--  查询所有客户总数  -->
+    <select id="selectCustomerInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM g_user AS a
+        LEFT JOIN g_user AS b ON a.pid = b.id
+        LEFT JOIN (select pid,count(pid) as used_count from g_user GROUP BY pid) c on a.id = c.pid
+        <where>
+            <if test='userName != null and userName != ""'>
+                and a.user_name like concat('%',#{userName},'%')
+            </if>
+            <if test='role != "admin"'>
+                and a.role = #{role} and a.pid = #{id}
+            </if>
+            <if test='role == "admin"'>
+                and a.id != #{id}
+            </if>
+            <if test='pUserName != null and pUserName != ""'>
+                and b.user_name like concat('%',#{pUserName},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--  编辑客户信息  -->
+    <update id="updateCustomerInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE g_user
+        <set>
+            <if test="profile != null">
+                profile = #{profile},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="phoneNumber != null">
+                phone_number = #{phoneNumber},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="sex != null and sex != 0">
+                sex = #{sex},
+            </if>
+            <if test="count != null and role = #{userName}">
+                count = #{count},
+            </if>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+        WHERE user_name = #{userName}
+    </update>
+
+    <!--  删除客户信息  -->
+    <delete id="deleteCustomerInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        delete from dev_record_door where device_code = any(select device_code from dev_device_door WHERE user_name =  #{userName});
+        delete from att_config where user_name = #{userName};
+        delete from dev_access_verification_config where device_code = any(select device_code from dev_device_door WHERE user_name =  #{userName});
+        delete from dev_config where device_code = any(select device_code from dev_device_door WHERE user_name =  #{userName});
+        delete from dev_heartbeat_status WHERE device_code = any(select device_code from dev_device_door WHERE user_name =  #{userName});
+        delete from dev_rsa_config WHERE device_code = any(select device_code from dev_device_door WHERE user_name =  #{userName});
+        delete from per_employee WHERE user_name = #{userName};
+        delete from dev_device_door where user_name = #{userName};
+        delete from g_user WHERE user_name = #{userName};
+    </delete>
+
+    <!--  新增客户信息  -->
+    <insert id="insertCustomerInfo" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO g_user
+        (user_name, password, name, phone_number, email, sex, profile, create_time, avatar, pid, role, count)
+        VALUES (#{userName}, #{password}, #{name}, #{phoneNumber}, #{email}, #{sex}, #{profile}, now(), #{avatar}, #{pid}, #{role}, #{count})
+    </insert>
+
+    <!--  通过账号查数量  -->
+    <select id="selectOnlyCustomerInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+            ( SELECT count FROM g_user WHERE user_name = #{userName})- count(*) as count
+        FROM
+            g_user
+        WHERE
+            pid = (
+            SELECT
+                id
+            FROM
+                g_user
+            WHERE
+            user_name = #{userName}
+            )
+    </select>
+</mapper>

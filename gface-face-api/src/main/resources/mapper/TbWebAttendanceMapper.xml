@@ -1,0 +1,36 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebAttendanceDao">
+
+    <select id="selectAttendanceMonth" resultType="cn.gface.face.api.data.TBAttendanceInfo">
+        SELECT
+        *
+        FROM
+            dev_record_door as a INNER JOIN dev_device_door as b INNER JOIN att_config as c
+        WHERE
+            b.user_name = #{userName} and JSON_CONTAINS(c.device_group,JSON_OBJECT('deviceGroup',b.device_group)) and a.device_code = b.device_code and record_time >= #{attendanceTime}
+        ORDER BY
+            record_time DESC
+    </select>
+
+    <select id="selectAttendance" resultType="cn.gface.face.api.data.TBAttendanceInfo">
+        SELECT
+            a.person_id,a.name,a.record_time,b.user_name,b.device_group,c.id,c.work_name,c.to_work_time,c.off_work_time,c.before_work_time,c.after_work_time,c.allow_late,c.allow_retreat
+        FROM
+            dev_record_door as a INNER JOIN dev_device_door as b INNER JOIN att_config as c
+        WHERE
+            b.user_name = #{userName} and JSON_CONTAINS(c.device_group,JSON_OBJECT('deviceGroup',b.device_group)) and a.device_code = b.device_code and record_time >= #{attendanceTime}
+        ORDER BY
+            record_time DESC
+    </select>
+
+    <select id="selectAttendanceConfig" resultType="cn.gface.face.api.data.TBAttendanceInfo">
+        SELECT
+        *
+        FROM
+        att_config
+        WHERE
+        user_name = #{userName}
+    </select>
+
+</mapper>

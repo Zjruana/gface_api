@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <description>Spring MVC Configuration</description>
+
+    <!--    加载配置属性文件    -->
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:gface.properties"/>
+
+    <!--    使用Annotation 自动注册Bean，只扫描 #Controller   -->
+    <context:component-scan base-package="cn.gface.face.api" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--    默认的注解映射的支持    -->
+    <mvc:annotation-driven/>
+
+    <mvc:default-servlet-handler />
+
+    <!--    定义视图文件解析    -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="${web.view.prefix}"/>
+        <property name="suffix" value="${web.view.suffix}"/>
+    </bean>
+
+    <!--    静态资源映射 mapping="/static/**" 不能改这个static -->
+<!--    <mvc:resources mapping="${tomcat.static.path}/**" location="file:D:${save.file.path}/" cache-period="31536000"/> &lt;!&ndash; Windows &ndash;&gt;-->
+    <mvc:resources mapping="${tomcat.static.path}/**" location="file:${save.file.path}/" cache-period="31536000"/> <!-- Linux -->
+
+
+
+    <!-- 上传文件拦截，设置最大上传文件大小 10M = 10*1024*1024(B) = 10485760 bytes -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="${web.maxUploadSize}"/>
+    </bean>
+
+    <!-- 配置拦截器, -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 具体匹配原则可以百度 /**的意思是所有文件夹及里面的子文件夹 /*是所有文件夹，不含子文件夹 /是web项目的根目录 -->
+            <mvc:mapping path="/**"/>
+            <bean class="cn.gface.face.api.interceptor.AuthorizationInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

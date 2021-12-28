@@ -1,0 +1,45 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbDeviceRecordDao">
+
+    <!--  门禁  -->
+    <insert id="insertDoorRecord" useGeneratedKeys="true" keyProperty="id" parameterType="cn.gface.face.api.data.DeviceRecordInfo">
+        INSERT INTO 
+        dev_record_door
+        (name, temperature, pic_url, confidence, person_id, record_type, occlusion, ic_card, person_type, device_code, qr_code, record_time, hsjl, ymjl, xcjl, guokang_card_id, guokang_status, guokang_card_name, guokang_over_city, guokang_code, id_card_no)
+        VALUES
+        (#{name}, #{temperature}, #{picUrl}, #{confidence}, #{personId}, #{recordType}, #{occlusion}, #{icCard}, #{personType}, #{deviceCode}, #{qrCode}, #{recordTime}, #{hsjl}, #{ymjl}, #{xcjl}, #{guokangCardId}, #{guokangStatus}, #{guokangCardName}, #{guokangOverCity}, #{guokangCode}, #{idCardNo})
+    </insert>
+    <!--  访客  -->
+    <insert id="insertVisRecord" useGeneratedKeys="true" keyProperty="id" parameterType="cn.gface.face.api.data.DeviceRecordInfo">
+        INSERT INTO
+        dev_record_door
+        (name, temperature, pic_url, confidence, person_id, record_type, occlusion, ic_card, person_type, device_code, qr_code, record_time, hsjl, ymjl, xcjl, guokang_card_id, guokang_status, guokang_card_name, guokang_over_city, guokang_code, id_card_no)
+        VALUES
+        (#{name}, #{temperature}, #{picUrl}, #{confidence}, #{personId}, #{recordType}, #{occlusion}, #{icCard}, #{personType}, #{deviceCode}, #{qrCode}, #{recordTime}, #{hsjl}, #{ymjl}, #{xcjl}, #{guokangCardId}, #{guokangStatus}, #{guokangCardName}, #{guokangOverCity}, #{guokangCode}, #{idCardNo})
+    </insert>
+    <!--  黑名单  -->
+    <insert id="insertBlacklistRecord" useGeneratedKeys="true" keyProperty="id" parameterType="cn.gface.face.api.data.DeviceRecordInfo">
+        INSERT INTO
+        dev_record_blacklist
+        (name, temperature, pic_url, confidence, person_id, record_type, occlusion, ic_card, person_type, device_code, qr_code, record_time, hsjl, ymjl, xcjl, guokang_card_id, guokang_status, guokang_card_name, guokang_over_city, guokang_code, id_card_no)
+        VALUES
+        (#{name}, #{temperature}, #{picUrl}, #{confidence}, #{personId}, #{recordType}, #{occlusion}, #{icCard}, #{personType}, #{deviceCode}, #{qrCode}, #{recordTime}, #{hsjl}, #{ymjl}, #{xcjl}, #{guokangCardId}, #{guokangStatus}, #{guokangCardName}, #{guokangOverCity}, #{guokangCode}, #{idCardNo})
+    </insert>
+    <!--  陌生人  -->
+    <insert id="insertStrangerRecord" useGeneratedKeys="true" keyProperty="id" parameterType="cn.gface.face.api.data.DeviceRecordInfo">
+        INSERT INTO
+        dev_record_stranger
+        (name, temperature, pic_url, confidence, person_id, record_type, occlusion, ic_card, person_type, device_code, qr_code, record_time, hsjl, ymjl, xcjl, guokang_card_id, guokang_status, guokang_card_name, guokang_over_city, guokang_code, id_card_no)
+        VALUES
+        (#{name}, #{temperature}, #{picUrl}, #{confidence}, #{personId}, #{recordType}, #{occlusion}, #{icCard}, #{personType}, #{deviceCode}, #{qrCode}, #{recordTime}, #{hsjl}, #{ymjl}, #{xcjl}, #{guokangCardId}, #{guokangStatus}, #{guokangCardName}, #{guokangOverCity}, #{guokangCode}, #{idCardNo})
+    </insert>
+    <!--  插入身份证信息  -->
+    <insert id="insertRecordIdCard" useGeneratedKeys="true" keyProperty="id" parameterType="cn.gface.face.api.web.dto.IdCardInfo">
+        INSERT INTO
+        dev_record_idcard_info
+        (sex, name, birth, nation, address, country, id_card_no, validity_time, id_card_pic_base64, issuing_authority)
+        VALUES (#{sex}, #{name}, #{birth}, #{nation}, #{address}, #{country}, #{idCardNo}, #{validityTime}, #{idCardPicBase64}, #{issuingAuthority})
+    </insert>
+
+</mapper>

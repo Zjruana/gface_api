@@ -1,0 +1,373 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebDashboardDao">
+
+    <select id="selectDashboardTableListData" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="cn.gface.face.api.data.TBRecordInfo">
+        SELECT * FROM(
+        SELECT
+        record.*,
+        device.device_name,
+        '0' as personType
+        FROM
+        dev_record_door AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        WHERE user_name = #{userName}
+
+        UNION ALL
+
+        SELECT
+        record.*,
+        device.device_name,
+        '1' as personType
+        FROM dev_record_vis AS record LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        WHERE user_name = #{userName}
+
+        UNION ALL
+
+        SELECT
+        record.*,
+        device.device_name,
+        '2' as personType
+        FROM dev_record_blacklist AS record LEFT JOIN dev_device_door AS device ON device.device_code
+        =record.device_code
+        WHERE user_name = #{userName}
+
+        UNION ALL
+
+        SELECT
+        record.*,
+        device.device_name,
+        '3' as personType
+        FROM dev_record_stranger AS record LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        WHERE user_name =#{userName}
+
+        UNION ALL
+
+        SELECT
+        record.*,
+        device.device_name,
+        '3' as personType
+        FROM dev_record_stranger AS record LEFT JOIN dev_device_door AS device ON device.device_code =record.device_code
+        WHERE user_name = #{userName}
+        ) all_data
+        <where>
+            <choose>
+                <when test='title == "today"'>
+                    to_days(FROM_UNIXTIME(record_time/1000))=to_days(now())
+                </when>
+
+                <when test='title == "yesterday"'>
+                    to_days(FROM_UNIXTIME(record_time/1000)) = to_days(date_sub(curdate(),interval 1 day))
+                </when>
+
+                <otherwise>
+                    <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                        and record_time BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) *
+                        1000 AND user_name = #{userName}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY record_time DESC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectDashboardTableListDataCount" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="java.lang.Integer">
+        SELECT
+        count( 1 )
+        FROM
+        (
+        SELECT
+        record.record_time
+        FROM
+        dev_record_door AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        WHERE
+        user_name = #{userName} UNION ALL
+        SELECT
+        record.record_time
+        FROM
+        dev_record_vis AS record
+        LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        WHERE
+        user_name = #{userName} UNION ALL
+        SELECT
+        record.record_time
+        FROM
+        dev_record_blacklist AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        WHERE
+        user_name = #{userName} UNION ALL
+        SELECT
+        record.record_time
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        WHERE
+        user_name = #{userName} UNION ALL
+        SELECT
+        record.record_time
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        WHERE
+        user_name = #{userName}
+        ) all_data
+        <where>
+            <choose>
+                <when test='title == "today"'>
+                    to_days(FROM_UNIXTIME(record_time/1000))=to_days(now())
+                </when>
+
+                <when test='title == "yesterday"'>
+                    to_days(FROM_UNIXTIME(record_time/1000)) = to_days(date_sub(curdate(),interval 1 day))
+                </when>
+
+                <otherwise>
+                    <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                        and record_time BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) *
+                        1000 AND user_name = #{userName}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+
+    <select id="selectDashboardNum" resultType="cn.gface.face.api.data.TBDashboardInfo">
+        SELECT
+	        *
+        FROM
+	        (SELECT sum( all_record ) all_record FROM (
+	        SELECT count(*) all_record FROM dev_record_door AS record INNER JOIN dev_device_door AS device ON device.device_code = record.device_code WHERE user_name = #{userName}
+	            UNION ALL
+		    SELECT count(*) all_record FROM dev_record_vis AS record INNER JOIN dev_device_vis AS device ON device.device_code = record.device_code WHERE user_name = #{userName}
+			    UNION ALL
+		    SELECT count(*) all_record FROM dev_record_blacklist AS record INNER JOIN dev_device_door AS device ON device.device_code = record.device_code WHERE user_name = #{userName}
+			    UNION ALL
+		    SELECT count(*) all_record FROM dev_record_stranger AS record INNER JOIN dev_device_door AS device ON device.device_code = record.device_code WHERE user_name = #{userName}
+			    UNION ALL
+		    SELECT count(*) all_record FROM dev_record_stranger AS record INNER JOIN dev_device_vis AS device ON device.device_code = record.device_code WHERE user_name = #{userName}
+		    ) AS all_record
+            ) a, (
+                SELECT sum( all_device ) AS all_device FROM (
+                SELECT count(*) all_device FROM dev_device_door WHERE user_name = #{userName} UNION ALL SELECT count(*) all_device FROM dev_device_vis WHERE user_name = #{userName} ) AS all_device
+            ) b, (
+                SELECT count(*) today_vis_record FROM dev_record_vis AS b INNER JOIN dev_device_vis AS a ON a.device_code = b.device_code WHERE to_days( FROM_UNIXTIME( record_time / 1000 ))= to_days(now())AND user_name = #{userName}
+            ) c, (
+                SELECT count(*) today_door_record FROM dev_record_door AS b INNER JOIN dev_device_door AS a ON a.device_code = b.device_code WHERE to_days(FROM_UNIXTIME( record_time / 1000 ))= to_days(now())AND user_name = #{userName}
+            ) d, (
+                SELECT sum( today_stranger ) AS today_stranger  FROM (SELECT count( 1 ) today_stranger FROM dev_record_stranger AS b INNER JOIN dev_device_door AS a ON a.device_code = b.device_code WHERE to_days(FROM_UNIXTIME( record_time / 1000 ))= to_days(now()) AND user_name = #{userName} UNION ALL SELECT count( 1 ) today_stranger FROM dev_record_stranger AS b INNER JOIN dev_device_vis AS a ON a.device_code = b.device_code WHERE to_days(FROM_UNIXTIME( record_time / 1000 ))= to_days(now()) AND user_name = #{userName} ) today_stranger
+            ) e, (
+                SELECT sum( today_blacklist ) AS today_blacklist FROM (SELECT count( 1 ) today_blacklist FROM dev_record_blacklist AS b INNER JOIN dev_device_door AS a ON a.device_code = b.device_code WHERE to_days(FROM_UNIXTIME( record_time / 1000 ))= to_days(now()) AND user_name = #{userName} UNION ALL SELECT count( 1 ) today_blacklist FROM dev_record_blacklist AS b INNER JOIN dev_device_vis AS a ON a.device_code = b.device_code WHERE to_days(FROM_UNIXTIME( record_time / 1000 ))= to_days(now()) AND user_name = #{userName} ) today_blacklist
+            ) f
+	</select>
+
+<!--    &#45;&#45;             , (-->
+<!--    &#45;&#45;                 SELECT sum(guokang_status = 1) AS today_guokang_green-->
+<!--    &#45;&#45;                     , sum(guokang_status = 2) AS today_guokang_yellow-->
+<!--    &#45;&#45;                     , sum(guokang_status = 3) AS today_guokang_red-->
+<!--    &#45;&#45;                 FROM (-->
+<!--    &#45;&#45;                     SELECT guokang_status-->
+<!--    &#45;&#45;                     FROM dev_record_door record-->
+<!--    &#45;&#45;                         LEFT JOIN dev_device_door device ON device.device_code = record.device_code-->
+<!--    &#45;&#45;                     WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                         AND to_days(FROM_UNIXTIME(record_time / 1000)) = to_days(now())-->
+<!--    &#45;&#45;                     UNION ALL-->
+<!--    &#45;&#45;                     SELECT guokang_status-->
+<!--    &#45;&#45;                     FROM dev_record_vis record-->
+<!--    &#45;&#45;                         LEFT JOIN dev_device_vis device ON device.device_code = record.device_code-->
+<!--    &#45;&#45;                     WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                         AND to_days(FROM_UNIXTIME(record_time / 1000)) = to_days(now())-->
+<!--    &#45;&#45;                     UNION ALL-->
+<!--    &#45;&#45;                     SELECT guokang_status-->
+<!--    &#45;&#45;                     FROM dev_record_blacklist record-->
+<!--    &#45;&#45;                         LEFT JOIN (-->
+<!--    &#45;&#45;                             SELECT device_code-->
+<!--    &#45;&#45;                             FROM dev_device_door-->
+<!--    &#45;&#45;                             WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                             UNION-->
+<!--    &#45;&#45;                             SELECT device_code-->
+<!--    &#45;&#45;                             FROM dev_device_vis-->
+<!--    &#45;&#45;                             WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                         ) device-->
+<!--    &#45;&#45;                         ON record.device_code = device.device_code-->
+<!--    &#45;&#45;                     WHERE to_days(FROM_UNIXTIME(record_time / 1000)) = to_days(now())-->
+<!--    &#45;&#45;                     UNION ALL-->
+<!--    &#45;&#45;                     SELECT guokang_status-->
+<!--    &#45;&#45;                     FROM dev_record_stranger record-->
+<!--    &#45;&#45;                         LEFT JOIN (-->
+<!--    &#45;&#45;                             SELECT device_code-->
+<!--    &#45;&#45;                             FROM dev_device_door-->
+<!--    &#45;&#45;                             WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                             UNION-->
+<!--    &#45;&#45;                             SELECT device_code-->
+<!--    &#45;&#45;                             FROM dev_device_vis-->
+<!--    &#45;&#45;                             WHERE user_name = #{userName}-->
+<!--    &#45;&#45;                         ) device-->
+<!--    &#45;&#45;                         ON record.device_code = device.device_code-->
+<!--    &#45;&#45;                     WHERE to_days(FROM_UNIXTIME(record_time / 1000)) = to_days(now())-->
+<!--    &#45;&#45;                 ) guokang_status-->
+<!--    &#45;&#45;             ) g-->
+    <select id="selectDashboardLineData" resultType="java.util.LinkedHashMap">
+        SELECT
+            data_time.click_date AS data_time,
+            ifnull( door_count.count, 0 ) AS door_count,
+            ifnull( vis_count.count, 0 ) AS vis_count,
+            ifnull( blacklist_count.count, 0 ) AS black_count,
+            ifnull( stranger_count.count, 0 ) AS stranger_count
+        FROM
+            (
+            SELECT
+                curdate() AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 1 DAY ) AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 2 DAY ) AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 3 DAY ) AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 4 DAY ) AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 5 DAY ) AS click_date UNION ALL
+            SELECT
+                date_sub( curdate(), INTERVAL 6 DAY ) AS click_date
+            ) data_time
+            LEFT JOIN (
+            SELECT
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) AS datetime,
+                count(*) AS count
+            FROM
+                dev_record_door AS record
+                INNER JOIN dev_device_door AS device ON device.device_code = record.device_code
+            WHERE
+                user_name = #{userName}
+            GROUP BY
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' ))
+            ) door_count ON data_time.click_date = door_count.datetime
+            LEFT JOIN (
+            SELECT
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) AS datetime,
+                count(*) AS count
+            FROM
+                dev_record_vis AS record
+                INNER JOIN dev_device_vis AS device ON device.device_code = record.device_code
+            WHERE
+                user_name = #{userName}
+            GROUP BY
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' ))
+            ) vis_count ON data_time.click_date = vis_count.datetime
+            LEFT JOIN (
+            SELECT
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) AS datetime,
+                count(*) AS count
+            FROM
+                dev_record_blacklist AS record
+                INNER JOIN dev_device_door AS device ON device.device_code = record.device_code
+            WHERE
+                user_name = #{userName}
+            GROUP BY
+                date(
+                FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' ))
+            ) blacklist_count ON data_time.click_date = blacklist_count.datetime
+            LEFT JOIN (
+            SELECT
+                *
+            FROM
+                (
+                SELECT
+                    date(
+                    FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) AS datetime,
+                    count(*) AS count
+                FROM
+                    dev_record_stranger AS record
+                    LEFT JOIN dev_device_door AS device_door ON device_door.device_code = record.device_code
+                WHERE
+                    user_name = #{userName}
+                GROUP BY
+                    date(
+                    FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) UNION ALL
+                SELECT
+                    date(
+                    FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' )) AS datetime,
+                    count(*) AS count
+                FROM
+                    dev_record_stranger AS record
+                    LEFT JOIN dev_device_vis AS device_vis ON device_vis.device_code = record.device_code
+                WHERE
+                    user_name = #{userName}
+                GROUP BY
+                    date(
+                    FROM_UNIXTIME( record_time / 1000, '%Y-%m-%d' ))
+                ) record_stranger
+            ) stranger_count ON data_time.click_date = stranger_count.datetime
+        ORDER BY
+        data_time ASC
+    </select>
+
+    <select id="selectDashboardEarlyWarnInfo" resultType="cn.gface.face.api.data.TBDashboardEarlyWarnInfo">
+        SELECT
+        *
+        FROM
+        web_record_dashboard_early_warn AS record
+        INNER JOIN (
+        SELECT device_code FROM dev_device_door AS door_device WHERE door_device.user_name = #{userName}
+        UNION
+        SELECT device_code FROM dev_device_vis AS vis_device WHERE vis_device.user_name = #{userName}
+        ) AS device ON record.device_code = device.device_code ORDER BY record.record_time DESC
+    </select>
+
+    <insert id="insertEarlyWarnRecord" useGeneratedKeys="true" keyProperty="id"
+            parameterType="cn.gface.face.api.data.DeviceRecordInfo">
+        INSERT INTO
+        web_record_dashboard_early_warn
+        (name, temperature, pic_url, confidence, person_id, record_type, occlusion, ic_card, person_type, device_code, qr_code, record_time, hsjl, ymjl, xcjl, guokang_card_id, guokang_status, guokang_card_name, guokang_over_city, guokang_code, id_card_no, degree)
+        VALUES
+        (#{name}, #{temperature}, #{picUrl}, #{confidence}, #{personId}, #{recordType}, #{occlusion}, #{icCard}, #{personType}, #{deviceCode}, #{qrCode}, #{recordTime}, #{hsjl}, #{ymjl}, #{xcjl}, #{guokangCardId}, #{guokangStatus}, #{guokangCardName}, #{guokangOverCity}, #{guokangCode}, #{idCardNo}, #{degree})
+    </insert>
+
+    <update id="updateDashboardEarlyWarnInfoByIds">
+        UPDATE web_record_dashboard_early_warn AS warn
+        INNER JOIN ( SELECT device_code FROM dev_device_door AS door_device WHERE door_device.user_name = #{userName}
+        UNION SELECT device_code FROM dev_device_vis AS vis_device WHERE vis_device.user_name = #{userName} ) AS device
+        ON warn.device_code = device.device_code
+        SET read_msg = TRUE WHERE id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <delete id="deleteDashboardEarlyWarnInfoByIds">
+        DELETE warn
+        FROM
+        web_record_dashboard_early_warn AS warn
+        INNER JOIN ( SELECT device_code FROM dev_device_door AS door_device WHERE door_device.user_name = #{userName}
+        UNION SELECT device_code FROM dev_device_vis AS vis_device WHERE vis_device.user_name = #{userName} ) AS device
+        ON warn.device_code = device.device_code
+        WHERE id IN
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <update id="updateNewMsgDashboardEarlyWarnInfoByIds">
+        UPDATE web_record_dashboard_early_warn AS warn
+        INNER JOIN ( SELECT device_code FROM dev_device_door AS door_device WHERE door_device.user_name = #{userName}
+        UNION SELECT device_code FROM dev_device_vis AS vis_device WHERE vis_device.user_name = #{userName} ) AS device
+        ON warn.device_code = device.device_code
+        SET new_msg = FALSE WHERE id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

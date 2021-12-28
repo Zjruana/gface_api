@@ -1,0 +1,74 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebGroupDao">
+
+    <select id="selectGroupList" resultType="java.util.HashMap">
+        SELECT
+            dev_group.g_name as groupName,
+            GROUP_CONCAT( dev_device_door.device_code ) as deviceCodes
+        FROM
+            dev_device_door
+            LEFT JOIN dev_group ON dev_group.g_id = dev_device_door.device_group
+        WHERE
+            dev_device_door.user_name = #{userName} AND dev_group.user_name = #{userName}
+        GROUP BY
+            dev_device_door.device_group
+    </select>
+    <select id="selectGroupVisList" resultType="java.util.HashMap">
+        SELECT
+            dev_group_vis.g_name as groupName,
+            GROUP_CONCAT( dev_device_vis.device_code ) as deviceCodes
+        FROM
+            dev_device_vis
+            LEFT JOIN dev_group_vis ON dev_group_vis.g_id = dev_device_vis.device_group
+        WHERE
+            dev_device_vis.user_name = #{userName} AND dev_group_vis.user_name = #{userName}
+        GROUP BY
+            dev_device_vis.device_group
+    </select>
+
+    <select id="selectGroupListInfo" resultType="java.util.HashMap">
+        SELECT
+            g_id as value,
+            g_name as label
+        FROM
+            dev_group
+        WHERE
+            user_name = #{userName}
+    </select>
+    <select id="selectGroupVisListInfo" resultType="java.util.HashMap">
+        SELECT
+            g_id as value,
+            g_name as label
+        FROM
+            dev_group_vis
+        WHERE
+            user_name = #{userName}
+    </select>
+    <select id="selectGroupInfoByGNameUName" resultType="cn.gface.face.api.data.TBGroupInfo">
+        SELECT
+            *
+        FROM
+            dev_group
+        WHERE
+            g_name = #{gName} and user_name = #{userName}
+    </select>
+    <insert id="insertGroupInfo" parameterType="cn.gface.face.api.data.RequestEntity" useGeneratedKeys="true"
+            keyProperty="gId">
+        INSERT INTO dev_group(g_name, user_name)
+        VALUES (#{gName}, #{userName})
+    </insert>
+    <select id="selectGroupVisInfoByGNameUName" resultType="cn.gface.face.api.data.TBGroupInfo">
+        SELECT
+            *
+        FROM
+            dev_group_vis
+        WHERE
+            g_name = #{gName} and user_name = #{userName}
+    </select>
+    <insert id="insertGroupVisInfo" parameterType="cn.gface.face.api.data.RequestEntity" useGeneratedKeys="true"
+            keyProperty="gId">
+        INSERT INTO dev_group_vis(g_name, user_name)
+        VALUES (#{gName}, #{userName})
+    </insert>
+</mapper>

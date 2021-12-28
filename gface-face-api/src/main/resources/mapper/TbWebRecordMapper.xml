@@ -1,0 +1,392 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebRecordDao">
+
+    <select id="selectDoorRecordInfo" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="cn.gface.face.api.data.TBRecordInfo">
+        SELECT * FROM(
+        SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_door AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE user_name = #{userName}
+        ) all_data
+        <where>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+        ORDER BY record_time DESC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectDoorRecordInfoCount" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="java.lang.Integer">
+        SELECT count(1) FROM(
+        SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_door AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE user_name = #{userName}
+        ) all_data
+        <where>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectVisRecordInfo" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="cn.gface.face.api.data.TBRecordInfo">
+        SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_vis AS record
+        LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        <where>
+            user_name = #{userName}
+            <choose>
+                <when test='title == "today"'>
+                    to_days(FROM_UNIXTIME(record_time/1000))=to_days(now())
+                </when>
+
+                <when test='title == "yesterday"'>
+                    to_days(FROM_UNIXTIME(record_time/1000)) = to_days(date_sub(curdate(),interval 1 day))
+                </when>
+
+                <otherwise>
+                    <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                        and record_time BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) *
+                        1000
+                    </if>
+                </otherwise>
+            </choose>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+        ORDER BY record_time DESC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+    <select id="selectVisRecordInfoCount" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        dev_record_vis AS record
+        LEFT JOIN dev_device_vis AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        <where>
+            user_name = #{userName}
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+    </select>
+    <select id="selectBlacklistRecordInfo" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="cn.gface.face.api.data.TBRecordInfo">
+        SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_blacklist AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        <where>
+            user_name = #{userName}
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+        ORDER BY record_time DESC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectBlacklistRecordInfoCount" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        dev_record_blacklist AS record
+        LEFT JOIN dev_device_door AS device ON device.device_code = record.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        <where>
+            user_name = #{userName}
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectStrangerRecordInfo" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="cn.gface.face.api.data.TBRecordInfo">
+        SELECT
+        *
+        FROM
+        (SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_door AS device ON record.device_code = device.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE
+        device.user_name = #{userName}
+        UNION ALL
+        SELECT
+        record.*,
+        device.device_name
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_vis AS device ON record.device_code = device.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE
+        device.user_name = #{userName}
+        ) all_data
+        <where>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+        ORDER BY record_time DESC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectStrangerRecordInfoCount" parameterType="cn.gface.face.api.data.RequestEntity"
+            resultType="java.lang.Integer">
+        SELECT
+        SUM( tmpcount )
+        FROM
+        (SELECT
+        count(1) AS tmpcount
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_door AS device ON record.device_code = device.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE
+        device.user_name = #{userName}
+        UNION ALL
+        SELECT
+        count(1) AS tmpcount
+        FROM
+        dev_record_stranger AS record
+        LEFT JOIN dev_device_vis AS device ON record.device_code = device.device_code
+        LEFT JOIN dev_record_idcard_info AS idcardinfo ON record.id_card_no = idcardinfo.id_card_no
+        WHERE
+        device.user_name = #{userName}
+        ) all_data
+        <where>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='temp != null and temp != ""'>
+                and temperature like concat('%', #{temp},'%')
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%', #{icCard},'%')
+            </if>
+            <if test='occlusion != null and occlusion != ""'>
+                and occlusion = #{occlusion}
+            </if>
+            <if test='deviceName != null and deviceName != ""'>
+                and device_name like concat('%',#{deviceName},'%')
+            </if>
+            <if test='guokangStatus != null and guokangStatus != ""'>
+                and guokang_status = #{guokangStatus}
+            </if>
+            <if test='hsjl != null and hsjl != ""'>
+                and hsjl like concat('%',#{hsjl},'%')
+            </if>
+            <if test='ymjl != null and ymjl != ""'>
+                and ymjl like concat('%',#{ymjl},'%')
+            </if>
+            <if test='xcjl != null and xcjl != ""'>
+                and xcjl like concat('%',#{xcjl},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

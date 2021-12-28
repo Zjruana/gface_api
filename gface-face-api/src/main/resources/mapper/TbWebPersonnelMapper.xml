@@ -1,0 +1,374 @@
+<?xml version= "1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gface.face.api.dao.TbWebPersonnelDao">
+
+    <select id="selectEmployeeInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        SELECT
+        b.*,
+        a.g_name as deviceGroup
+        FROM
+        per_employee as b LEFT JOIN dev_group AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='idCardNo != null and idCardNo != ""'>
+                and id_card_no like concat('%',#{idCardNo},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+        GROUP BY person_id
+        ORDER BY b.id ASC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectEmployeeInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        per_employee as b LEFT JOIN dev_group AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='idCardNo != null and idCardNo != ""'>
+                and id_card_no like concat('%',#{idCardNo},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+    </select>
+
+    <select id="selectVisitorInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        SELECT
+        b.*,
+        a.g_name as deviceGroup
+        FROM
+        per_visitor as b LEFT JOIN dev_group_vis AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+        GROUP BY person_id
+        ORDER BY b.id ASC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+
+    <select id="selectVisitorInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        per_visitor as b LEFT JOIN dev_group_vis AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+    </select>
+
+    <select id="selectBlacklistInfo" parameterType="cn.gface.face.api.data.RequestEntity" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        SELECT
+        b.*,
+        a.g_name as deviceGroup
+        FROM
+        per_blacklist as b LEFT JOIN dev_group AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            <if test='idCardNo != null and idCardNo != ""'>
+                and ic_card_no like concat('%',#{idCardNo},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+        GROUP BY person_id
+        ORDER BY b.id ASC
+        <if test='limit != 0'>
+            LIMIT #{page},#{limit}
+        </if>
+    </select>
+    <select id="selectBlacklistInfoCount" parameterType="cn.gface.face.api.data.RequestEntity" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        per_blacklist as b LEFT JOIN dev_group AS a ON b.device_group = a.g_id
+        <where>
+            <if test='beginTime != null and beginTime != "" and endTime != null and endTime != ""'>
+                and valid_date_start BETWEEN unix_timestamp(#{beginTime}) * 1000 and unix_timestamp(#{endTime}) * 1000
+            </if>
+            <if test='name != null and name != ""'>
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test='mobilePhone != null and mobilePhone != ""'>
+                and mobile_phone like concat('%',#{mobilePhone},'%')
+            </if>
+            <if test='sex != null and sex != 0'>
+                and sex = #{sex}
+            </if>
+            <if test='icCard != null and icCard != ""'>
+                and ic_card like concat('%',#{icCard},'%')
+            </if>
+            <if test='idCardNo != null and idCardNo != ""'>
+                and ic_card_no like concat('%',#{idCardNo},'%')
+            </if>
+            and operation_type != 2 and b.user_name = #{userName}
+        </where>
+    </select>
+
+    <update id="updateId">
+        alter table per_employee AUTO_INCREMENT=1;
+    </update>
+    <update id="updateVisId">
+        alter table per_visitor AUTO_INCREMENT=1;
+    </update>
+    <update id="updateBlacklistId">
+        alter table per_blacklist AUTO_INCREMENT=1;
+    </update>
+    <insert id="insertUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO per_employee
+        (person_id, name, mobile_phone, ic_card, sex, face_url, remark, device_group, valid_date_start, valid_date_end, update_time, job_number, open_door_password, user_name, id_card_no)
+        VALUES
+        (#{personId}, #{name}, #{mobilePhone}, #{icCard}, #{sex}, #{imageUrl}, #{remark}, #{deviceGroup}, #{validDateStart}, #{validDateEnd}, #{updateTime},#{jobNumber}, #{openDoorPassword}, #{userName}, #{idCardNo})
+    </insert>
+    <insert id="insertVisUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO per_visitor
+        (person_id, name, mobile_phone, ic_card, sex, face_url, remark, device_group, valid_date_start, valid_date_end, update_time, job_number, open_door_password, user_name)
+        VALUES
+        (#{personId}, #{name}, #{mobilePhone}, #{icCard}, #{sex}, #{imageUrl}, #{remark}, #{deviceGroup}, #{validDateStart}, #{validDateEnd}, #{updateTime},#{jobNumber}, #{openDoorPassword}, #{userName})
+    </insert>
+    <insert id="insertBlacklistUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        INSERT INTO per_blacklist
+        (person_id, name, mobile_phone, ic_card, sex, face_url, remark, device_group, valid_date_start, valid_date_end, update_time, user_name, id_card_no)
+        VALUES
+        (#{personId}, #{name}, #{mobilePhone}, #{icCard}, #{sex}, #{imageUrl}, #{remark}, #{deviceGroup}, #{validDateStart}, #{validDateEnd}, #{updateTime}, #{userName}, #{idCardNo})
+    </insert>
+
+    <delete id="deleteDoorUser">
+        DELETE FROM per_employee where person_id = #{personId};
+    </delete>
+    <delete id="deleteVisUser">
+        DELETE FROM per_visitor where person_id = #{personId};
+    </delete>
+    <delete id="deleteBlacklistUser">
+        DELETE FROM per_blacklist where person_id = #{personId};
+    </delete>
+    <update id="updateUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE per_employee
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="mobilePhone != null">
+                mobile_phone = #{mobilePhone},
+            </if>
+            <if test="icCard != null">
+                ic_card = #{icCard},
+            </if>
+            <if test="sex != null and sex != 0">
+                sex = #{sex},
+            </if>
+            <if test="validDateEnd != 0">
+                valid_date_end = #{validDateEnd},
+            </if>
+            <if test="imageUrl != null">
+                face_url = #{imageUrl},
+            </if>
+            <if test="faceBase64 != null">
+                face_base64 = #{faceBase64},
+            </if>
+            <if test="remark != null ">
+                remark = #{remark},
+            </if>
+            <if test="deviceCode != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="operationType != null and operationType != 0">
+                operation_type = #{operationType},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="deviceGroup != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="idCardNo != null">
+                id_card_no = #{idCardNo},
+            </if>
+            <if test="openDoorPassword != null">
+                open_door_password = #{openDoorPassword},
+            </if>
+            <if test="jobNumber != null">
+                job_number = #{jobNumber},
+            </if>
+        </set>
+        WHERE person_id = #{personId}
+    </update>
+    <update id="updateVisUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE per_visitor
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="mobilePhone != null">
+                mobile_phone = #{mobilePhone},
+            </if>
+            <if test="icCard != null">
+                ic_card = #{icCard},
+            </if>
+            <if test="sex != null and sex != 0">
+                sex = #{sex},
+            </if>
+            <if test="validDateEnd != 0">
+                valid_date_end = #{validDateEnd},
+            </if>
+            <if test="imageUrl != null">
+                face_url = #{imageUrl},
+            </if>
+            <if test="faceBase64 != null">
+                face_base64 = #{faceBase64},
+            </if>
+            <if test="remark != null ">
+                remark = #{remark},
+            </if>
+            <if test="deviceCode != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="operationType != null and operationType != 0">
+                operation_type = #{operationType},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="deviceGroup != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="openDoorPassword != null">
+                open_door_password = #{openDoorPassword},
+            </if>
+            <if test="jobNumber != null">
+                job_number = #{jobNumber},
+            </if>
+        </set>
+        WHERE person_id = #{personId}
+    </update>
+    <update id="updateBlacklistUser" parameterType="cn.gface.face.api.data.RequestEntity">
+        UPDATE per_blacklist
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="mobilePhone != null">
+                mobile_phone = #{mobilePhone},
+            </if>
+            <if test="icCard != null">
+                ic_card = #{icCard},
+            </if>
+            <if test="sex != null and sex != 0">
+                sex = #{sex},
+            </if>
+            <if test="validDateEnd != 0">
+                valid_date_end = #{validDateEnd},
+            </if>
+            <if test="imageUrl != null">
+                face_url = #{imageUrl},
+            </if>
+            <if test="faceBase64 != null">
+                face_base64 = #{faceBase64},
+            </if>
+            <if test="remark != null ">
+                remark = #{remark},
+            </if>
+            <if test="deviceCode != null">
+                device_group = #{deviceGroup},
+            </if>
+            <if test="operationType != null and operationType != 0">
+                operation_type = #{operationType},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="idCardNo != null">
+                id_card_no = #{idCardNo},
+            </if>
+            <if test="deviceGroup != null">
+                device_group = #{deviceGroup},
+            </if>
+        </set>
+        WHERE person_id = #{personId}
+    </update>
+    <select id="selectUserOnly" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        select * from per_employee WHERE person_id = #{personId}
+    </select>
+    <select id="selectVisUserOnly" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        select * from per_visitor WHERE person_id = #{personId}
+    </select>
+    <select id="selectBlacklistUserOnly" resultType="cn.gface.face.api.data.TBPersonnelInfo">
+        select * from per_blacklist WHERE person_id = #{personId}
+    </select>
+</mapper>
